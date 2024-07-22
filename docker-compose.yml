@@ -1,0 +1,40 @@
+services:
+  crdb-aws-us-east-1:
+    image: cockroachdb/cockroach:latest
+    command:
+      start --cluster-name=example-local --locality=region=aws-us-east-1
+      --logtostderr=WARNING --log-file-verbosity=WARNING --insecure
+      --join=crdb-aws-us-east-1
+
+  crdb-aws-us-west-2:
+    image: cockroachdb/cockroach:latest
+    command:
+      start --cluster-name=example-local --locality=region=aws-us-west-2
+      --logtostderr=WARNING --log-file-verbosity=WARNING --insecure
+      --join=crdb-aws-us-east-1
+    depends_on:
+      - crdb-aws-us-east-1
+
+  lb:
+    image: timveil/dynamic-haproxy:latest
+    ports:
+      - "26257:26257" # SQL Port
+      - "8080:8080" # HTTP Port
+      - "8081:8081" # Stats Port
+    environment:
+      NODES: crdb-aws-us-east-1 crdb-aws-us-west-2
+    depends_on:
+      - crdb-aws-us-east-1
+      - crdb-aws-us-west-2
+
+  crdb-init:
+    image: timveil/cockroachdb-remote-client:latest
+    environment:
+      COCKROACH_HOST: crdb-aws-us-east-1:26257
+      COCKROACH_INSECURE: "true"
+      COCKROACH_INIT: "true"
+      DATABASE_NAME: example
+      COCKROACH_ORG: ${COCKROACH_ORG}
+      COCKROACH_LICENSE_KEY: ${COCKROACH_LICENSE_KEY}
+    depends_on:
+      - lb

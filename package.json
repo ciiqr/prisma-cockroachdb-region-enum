@@ -1,0 +1,14 @@
+{
+  "name": "prisma-cockroachdb-region-enum",
+  "version": "1.0.0",
+  "description": "```bash DATABASE_URL=\"postgresql://localhost:26257/thinklp?sslmode=disable\"",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "prisma": "5.17.0"
+  }
+}
